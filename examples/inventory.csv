@@ -1,0 +1,6 @@
+hostname,os,version,kernel,architecture,platform
+LPAR001,SLES,15 SP6,6.4.0-150600.23.25-default,ppc64le,IBM Power
+LPAR002,SLES,15 SP6,6.4.0-150600.23.135-default,ppc64le,IBM Power
+LPAR003,SLES,15 SP5,6.4.0-150600.23.73-default,ppc64le,IBM Power
+VM004,SLES,15 SP7,6.4.0-150700.53.3-default,x86_64,VMware
+BADHOST,SLES,15 SP6,6.4.0-garbage,ppc64le,IBM Power

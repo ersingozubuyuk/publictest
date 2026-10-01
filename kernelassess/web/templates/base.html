@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Kernel Assessment{% endblock %}</title>
+<style>
+:root {
+  --bg: #f4f6f5; --surface: #ffffff; --text: #17201c; --muted: #5d6b64; --border: #dde3e0;
+  --accent: #30ba78; --accent-ink: #0c322c; --link: #0f62fe;
+  --crit: #b3261e; --high: #d9480f; --med: #b08800; --low: #2f6f4f; --unk: #6b7280;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111614; --surface: #1a211e; --text: #e6ece9; --muted: #9aa8a1; --border: #2c3631;
+          --link: #78a9ff; --crit: #ff8a80; --high: #ffa94d; --med: #ffd43b; --low: #8ce99a; --unk: #adb5bd; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { background: var(--accent-ink); color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; border-left: 6px solid var(--accent); }
+header a { color: #fff; text-decoration: none; font-weight: 600; }
+header .tag { font-size: 12px; opacity: .7; }
+main { max-width: 1280px; margin: 0 auto; padding: 24px 16px; }
+a { color: var(--link); }
+h1 { font-size: 22px; margin: 0 0 16px; }
+h2 { font-size: 16px; margin: 28px 0 10px; padding-left: 10px; border-left: 4px solid var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kpi .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi .l { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+td.n { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+.sev { font-weight: 600; }
+.sev-Critical { color: var(--crit); } .sev-High { color: var(--high); } .sev-Medium { color: var(--med); }
+.sev-Low { color: var(--low); } .sev-Unknown { color: var(--unk); }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+.pill.missing { border-color: var(--high); color: var(--high); }
+.pill.installed { background: var(--accent); color: #fff; border-color: var(--accent); }
+.muted { color: var(--muted); }
+.warn { background: color-mix(in srgb, var(--high) 12%, var(--surface)); border: 1px solid var(--high); border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; word-break: break-word; }
+form.inline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+input, select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
+.filters a { margin-right: 10px; }
+footer { color: var(--muted); font-size: 12px; text-align: center; padding: 24px; }
+</style>
+</head>
+<body>
+<header><a href="/">Kernel Security &amp; Lifecycle Assessment</a><span class="tag">test dashboard · v{{ version }}</span></header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>Kaynak: SUSE OVAL patch feed, SUSE Product Lifecycle · Sunucuya bağlanılmadan, yalnızca sürüm bilgisinden üretilmiştir.</footer>
+</body>
+</html>

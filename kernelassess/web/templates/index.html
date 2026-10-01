@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+{% if error %}<div class="warn">{{ error }}</div>{% endif %}
+
+<div class="grid2">
+  <div class="card">
+    <h1>Envanter yükle</h1>
+    <form class="inline" method="post" action="/assess" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".csv,.txt" required>
+      <label class="muted">Tarih <input type="date" name="date"></label>
+      <button type="submit">Analiz et</button>
+    </form>
+    <p class="muted">CSV başlığı: <code>hostname,os,version,kernel,architecture,platform</code></p>
+  </div>
+  <div class="card">
+    <h1>SUSE verisi</h1>
+    <dl>
+      <dt>Durum</dt><dd>{{ data.status }}{% if data.message %} — {{ data.message }}{% endif %}</dd>
+      <dt>Kernel advisory</dt><dd>{{ data.advisories if data.advisories is not none else "—" }}</dd>
+      <dt>Feed tarihi</dt><dd>{{ data.last_modified or "—" }}</dd>
+    </dl>
+    <form method="post" action="/refresh" style="margin-top:10px"><button class="secondary">Şimdi güncelle</button></form>
+  </div>
+</div>
+
+{% if summary %}
+<h2>Filo özeti
+  {% if runs|length > 1 %}
+  <form method="get" action="/" style="display:inline; margin-left:12px">
+    <select name="run" onchange="this.form.submit()">
+      {% for r in runs %}<option value="{{ r }}" {% if r == run_id %}selected{% endif %}>{{ r }}</option>{% endfor %}
+    </select>
+  </form>
+  {% else %}<span class="muted">· {{ run_id }}</span>{% endif %}
+</h2>
+
+<div class="kpis">
+  <div class="card kpi"><div class="v">{{ summary.host_count }}</div><div class="l">Host</div></div>
+  <div class="card kpi"><div class="v">{{ summary.fleet_unique_missing_cves }}</div><div class="l">Tekil eksik CVE</div></div>
+  {% for s in severities %}
+  <div class="card kpi"><div class="v sev sev-{{ s }}">{{ summary.fleet_unique_missing_cves_by_severity[s] }}</div><div class="l">{{ s }}</div></div>
+  {% endfor %}
+</div>
+
+<h2>Hostlar</h2>
+<div class="table-wrap"><table>
+  <tr><th>ID</th><th>Hostname</th><th>Kernel</th><th>SP</th><th>Lifecycle</th>
+      <th>Geride (release)</th><th>Geride (gün)</th><th>Eksik advisory</th><th>Eksik CVE</th>
+      <th>C</th><th>H</th><th>M</th><th>L</th><th>Uyarı</th></tr>
+  {% for h in summary.hosts %}
+  <tr>
+    <td><a href="/runs/{{ run_id }}/hosts/{{ h.host_id }}">{{ h.host_id }}</a></td>
+    <td>{{ names.get(h.host_id, "") }}</td>
+    <td><code>{{ h.kernel }}</code></td>
+    <td>{{ h.service_pack }}</td>
+    <td>{{ h.lifecycle_phase }}</td>
+    <td class="n">{{ h.releases_behind }}</td>
+    <td class="n">{{ h.days_behind }}</td>
+    <td class="n">{{ h.missing_advisories }}</td>
+    <td class="n">{{ h.missing_cves }}</td>
+    <td class="n sev sev-Critical">{{ h.critical }}</td>
+    <td class="n sev sev-High">{{ h.high }}</td>
+    <td class="n sev sev-Medium">{{ h.medium }}</td>
+    <td class="n sev sev-Low">{{ h.low }}</td>
+    <td>{% if h.issues %}<span class="pill missing">{{ h.issues }}</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}
+<p class="muted" style="margin-top:24px">Henüz analiz yok. Başlamak için bir envanter CSV yükleyin.</p>
+{% endif %}
+{% endblock %}

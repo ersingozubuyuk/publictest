@@ -1,0 +1,20 @@
+# SUSE product lifecycle dates.
+# Source: https://www.suse.com/lifecycle/  (retrieved 2026-10-01)
+# Update this file whenever SUSE publishes changes; the report cites `source` and `retrieved`.
+source: https://www.suse.com/lifecycle/
+retrieved: 2026-10-01
+
+products:
+  SLES:
+    "15":
+      product_general_end: 2031-07-31
+      product_ltss_end: 2037-07-31
+      releases:
+        "0":   {fcs: 2018-07-16, general_end: 2019-12-31, ltss_end: 2022-12-31}
+        "1":   {fcs: 2019-06-24, general_end: 2021-01-31, ltss_end: 2024-01-31}
+        "2":   {fcs: 2020-07-21, general_end: 2021-12-31, ltss_end: 2024-12-31}
+        "3":   {fcs: 2021-06-22, general_end: 2022-12-31, ltss_end: 2025-12-31}
+        "4":   {fcs: 2022-06-21, general_end: 2023-12-31, ltss_end: 2026-12-31}
+        "5":   {fcs: 2023-06-20, general_end: 2024-12-31, ltss_end: 2027-12-31}
+        "6":   {fcs: 2024-06-26, general_end: 2025-12-31, ltss_end: 2028-12-31}
+        "7":   {fcs: 2025-06-17, general_end: 2031-07-31, ltss_end: 2034-07-31}

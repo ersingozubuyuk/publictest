@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ r.host_id }} · Kernel Assessment{% endblock %}
+{% block content %}
+{% set sys = r.system or {} %}
+{% set ver = r.version or {} %}
+{% set sec = r.security or {} %}
+{% set lc = r.lifecycle or {} %}
+<p><a href="/?run={{ run_id }}">← Filo</a> · <a href="/runs/{{ run_id }}/hosts/{{ r.host_id }}.json">JSON indir</a></p>
+<h1>{{ r.host_id }}{% if hostname %} <span class="muted">· {{ hostname }}</span>{% endif %}</h1>
+
+{% if r.issues %}<div class="warn"><strong>Uyarılar</strong><ul>{% for i in r.issues %}<li>{{ i }}</li>{% endfor %}</ul></div>{% endif %}
+
+<div class="kpis">
+  <div class="card kpi"><div class="v">{{ ver.maintenance_gap.releases_behind if ver else "—" }}</div><div class="l">Geride (release)</div></div>
+  <div class="card kpi"><div class="v">{{ ver.maintenance_gap.days_behind if ver else "—" }}</div><div class="l">Geride (gün)</div></div>
+  <div class="card kpi"><div class="v">{{ sec.missing_advisory_count if sec else "—" }}</div><div class="l">Eksik advisory</div></div>
+  <div class="card kpi"><div class="v">{{ sec.missing_cve_count if sec else "—" }}</div><div class="l">Eksik CVE</div></div>
+  {% for s in severities %}
+  <div class="card kpi"><div class="v sev sev-{{ s }}">{{ sec.by_severity[s] if sec else "—" }}</div><div class="l">{{ s }}</div></div>
+  {% endfor %}
+</div>
+
+<div class="grid2" style="margin-top:16px">
+  <div class="card">
+    <h2 style="margin-top:0">Sistem</h2>
+    <dl>
+      {% for k, label in [("os","OS"),("service_pack","Service Pack"),("kernel","Kernel"),("kernel_flavor","Flavor"),
+                          ("upstream_version","Upstream"),("architecture","Mimari"),("platform","Platform"),
+                          ("assessment_date","Değerlendirme tarihi"),("assessment_method","Yöntem")] %}
+      <dt>{{ label }}</dt><dd>{{ sys[k] }}</dd>
+      {% endfor %}
+    </dl>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">Lifecycle</h2>
+    <dl>
+      <dt>Ürün</dt><dd>{{ lc.product }}</dd>
+      <dt>Faz</dt><dd><strong>{{ lc.phase }}</strong></dd>
+      <dt>General Support bitiş</dt><dd>{{ lc.general_support_end }}</dd>
+      <dt>LTSS bitiş</dt><dd>{{ lc.ltss_end }}</dd>
+      <dt>Mevcut faz bitişine</dt><dd>{{ lc.days_to_phase_end }} gün</dd>
+      <dt>En güncel SP</dt><dd>{{ lc.latest_service_pack }}{% if lc.service_pack_upgrade_recommended %} — <strong>SP yükseltmesi önerilir</strong>{% endif %}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">Sürüm</h2>
+    {% if ver %}
+    <dl>
+      <dt>Installed</dt><dd>{{ ver.installed.maintenance_release }} · {{ ver.installed.advisory }} · {{ ver.installed.issued }}</dd>
+      <dt>Recommended</dt><dd>{% if ver.recommended is mapping %}{{ ver.recommended.kernel }} ({{ ver.recommended.advisory }}){% else %}{{ ver.recommended }}{% endif %}</dd>
+      <dt>Latest</dt><dd>{% if ver.latest is mapping %}{{ ver.latest.kernel }} · {{ ver.latest.issued }}{% else %}{{ ver.latest }}{% endif %}</dd>
+    </dl>
+    {% else %}<p class="muted">Kernel çözümlenemedi.</p>{% endif %}
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">Doğrulanamayanlar</h2>
+    <ul>{% for n in r.not_verified %}<li>{{ n }}</li>{% endfor %}</ul>
+    {% if r.ibm_power %}
+    <dl>{% for k, v in r.ibm_power.items() if k != "note" %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+    {% endif %}
+  </div>
+</div>
+
+{% if ver.timeline %}
+<h2>Maintenance timeline</h2>
+<div class="table-wrap"><table>
+  <tr><th>Release</th><th>Durum</th><th>Advisory</th><th>Tarih</th><th>Severity</th><th class="n">CVE</th></tr>
+  {% for t in ver.timeline %}
+  <tr>
+    <td><code>{{ t.maintenance_release }}</code></td>
+    <td><span class="pill {{ t.status }}">{{ t.status }}</span></td>
+    <td>{% if t.advisory_url %}<a href="{{ t.advisory_url }}" target="_blank" rel="noopener">{{ t.advisory }}</a>{% else %}{{ t.advisory }}{% endif %}</td>
+    <td>{{ t.issued }}</td><td>{{ t.severity }}</td><td class="n">{{ t.cve_count }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+
+{% if sec %}
+<h2>Eksik CVE'ler <span class="muted">({{ cve_total }}{% if cve_total > limit %}, ilk {{ limit }} gösteriliyor{% endif %})</span></h2>
+<p class="filters">
+  <a href="?">Tümü</a>{% for s in severities %}<a href="?sev={{ s }}" class="sev sev-{{ s }}">{{ s }}</a>{% endfor %}
+  {% if cve_total > limit %}<a href="?{% if sev %}sev={{ sev }}&{% endif %}limit=100000">tamamını göster</a>{% endif %}
+</p>
+<div class="table-wrap"><table>
+  <tr><th>CVE</th><th class="n">CVSS</th><th>Severity</th><th>Kaynak</th><th>Fixed</th><th>Component</th><th>Özet</th></tr>
+  {% for c in cves %}
+  <tr>
+    <td><a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.cve }}</a></td>
+    <td class="n">{{ c.cvss3 }}</td>
+    <td class="sev sev-{{ c.severity }}">{{ c.severity }}</td>
+    <td class="muted">{{ c.severity_source }}</td>
+    <td><code>{{ c.fixed_release }}</code></td>
+    <td>{{ c.component }}</td>
+    <td>{{ c.summary }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+{% endblock %}
